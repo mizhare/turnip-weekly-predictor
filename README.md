@@ -1,1 +1,1 @@
-# AC-Turnip-Weekly-Prediction
+# AC-Turnip-Weekly-Predictor
