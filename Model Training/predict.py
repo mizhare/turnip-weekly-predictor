@@ -33,7 +33,7 @@ def main():
     mean_pred = all_preds.mean(axis=0)
     std_pred = all_preds.std(axis=0)
 
-    # Predict the future slots within the base slots
+    # Predict the future slots within the base slots (input)
     full_slots = ["Mon AM", "Mon PM", "Tue AM", "Tue PM", "Wed AM", "Wed PM",
                   "Thu AM", "Thu PM", "Fri AM", "Fri PM", "Sat AM", "Sat PM"]
 
