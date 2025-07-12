@@ -9,7 +9,7 @@ def main():
     regressors_by_pattern = joblib.load('regressors_by_pattern.pkl')
 
     # Initial (input)
-    partial_week = [114, 85, 92, 87, 65, 60]
+    partial_week = [126, 106, 105, 122]
 
     # Preparing data for the models
     full_week_imputed, reg_input_imputed, missing_count, original_input = prepare_input_for_prediction(
