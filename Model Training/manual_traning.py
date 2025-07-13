@@ -10,7 +10,7 @@ from utils import parse_dataset, prepare_dataset, augment_week
 from manual_pattern import detect_pattern
 
 def main():
-    # 1. Load and prepare dataset
+    # Load and prepare dataset
     filepath = "turnips_prices.xlsx"
     dataset = parse_dataset(filepath)
 
@@ -38,7 +38,7 @@ def main():
     # Prepare dataset (feature matrix X and imputer)
     X, imputer = prepare_dataset(augmented_dataset)
 
-    # 3. Label each week pattern using detect_pattern
+    # Label each week pattern using detect_pattern
     labels = [detect_pattern(list(prices)) for prices in X]
 
     # Filter samples with valid labels (exclude 'unknown')
