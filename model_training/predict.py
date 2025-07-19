@@ -1,80 +1,67 @@
-import numpy as np
 import joblib
-import pandas as pd
-from utils import prepare_input_for_prediction
+import numpy as np
 
-def enforce_decreasing(predictions):
+def predict_from_partial(partial_prices, model_folder="model_training", previous_pattern=None):
     """
-    Adjust the predicted prices to ensure non-increasing sequence.
-    """
-    adjusted = predictions.copy()
-    for i in range(1, len(adjusted)):
-        if adjusted[i] > adjusted[i - 1]:
-            adjusted[i] = adjusted[i - 1]
-    return adjusted
+    Predict the weekly turnip price pattern and future prices based on partial input prices and previous pattern.
 
-def predict_from_partial(partial_week, model_folder):
+    Args:
+        partial_prices (list): List of partial prices (None for missing).
+        model_folder (str): Path to folder with saved models.
+        previous_pattern (str or None): Previous week's pattern as string (optional).
+
+    Returns:
+        None. Prints prediction results.
     """
-    Given partial prices (list), load models and predict pattern and future prices.
-    """
-    # Load models
+
+    # Load models and encoder
     clf = joblib.load(f"{model_folder}/classifier_model.pkl")
-    regressors_by_pattern = joblib.load(f"{model_folder}/regressors_by_pattern.pkl")
     imputer = joblib.load(f"{model_folder}/imputer.pkl")
+    regressors_by_pattern = joblib.load(f"{model_folder}/regressors_by_pattern.pkl")
+    encoder = joblib.load(f"{model_folder}/previous_pattern_encoder.pkl")
 
-    # Load historical data (optional)
-    try:
-        df_history = pd.read_pickle(f"{model_folder}/historical_patterns.pkl")
-    except FileNotFoundError:
-        df_history = None
+    # Ensure input length max 12
+    partial_prices = partial_prices[:12]
+    # Pad to length 12 with None if needed
+    if len(partial_prices) < 12:
+        partial_prices += [None] * (12 - len(partial_prices))
 
-    # Prepare input for classifier and regressor
-    full_week_imputed, reg_input_imputed, missing_count, original_input = prepare_input_for_prediction(partial_week, imputer)
+    # Convert to numpy array (shape (12,))
+    prices_array = np.array(partial_prices, dtype=np.float64).reshape(1, -1)
 
-    # Predict pattern
-    predicted_pattern = clf.predict(full_week_imputed)[0]
-    probabilities = clf.predict_proba(full_week_imputed)[0]
+    # Impute only prices (12 features)
+    prices_imputed = imputer.transform(prices_array)
+
+    # Encode previous pattern if provided, else zero vector
+    if previous_pattern is None or previous_pattern == "unknown":
+        prev_pattern_encoded = np.zeros((1, len(encoder.categories_[0])))
+    else:
+        prev_pattern_encoded = encoder.transform([[previous_pattern]])
+
+    # Concatenate imputed prices with previous pattern encoding (shape (1, 12 + n))
+    X_input = np.hstack([prices_imputed, prev_pattern_encoded])
+
+    # Predict pattern class probabilities and class
+    pattern_probs = clf.predict_proba(X_input)[0]
+    predicted_pattern = clf.classes_[np.argmax(pattern_probs)]
 
     print(f"🔮 Predicted pattern: {predicted_pattern}")
-    for pattern, prob in zip(clf.classes_, probabilities):
-        print(f" - {pattern}: {prob * 100:.2f}%")
+    for cls, prob in zip(clf.classes_, pattern_probs):
+        print(f" - {cls}: {prob*100:.2f}%")
 
-    # Predict future prices using Gaussian Process regressor for predicted pattern
+    # Predict future prices with Gaussian Process regressor for predicted pattern
     gp = regressors_by_pattern.get(predicted_pattern)
     if gp is None:
-        print(f"⚠️ No regressor model found for pattern '{predicted_pattern}'. Cannot predict future prices.")
+        print(f"⚠️ No regressor found for pattern '{predicted_pattern}'. Cannot predict future prices.")
         return
 
-    mean_pred, std_pred = gp.predict(reg_input_imputed, return_std=True)
-    mean_pred = mean_pred[0]
-    std_pred = std_pred[0]
+    # For GP input, use first 4 prices (Mon AM to Tue PM)
+    gp_input = prices_imputed[:, :4]
 
-    # If decreasing pattern, enforce non-increasing prediction
-    if predicted_pattern == "decreasing":
-        mean_pred = enforce_decreasing(mean_pred)
+    mean_pred, std_pred = gp.predict(gp_input, return_std=True)
 
-    # Define all time slots and select future ones based on length of partial_week
-    full_slots = [
-        "Mon AM", "Mon PM", "Tue AM", "Tue PM",
-        "Wed AM", "Wed PM", "Thu AM", "Thu PM",
-        "Fri AM", "Fri PM", "Sat AM", "Sat PM"
-    ]
-    future_slots = full_slots[len(partial_week):]
-
-    print("\n📈 Estimated future prices with uncertainty (mean ± std):")
-    for slot, mean, std in zip(future_slots, mean_pred[-len(future_slots):], std_pred[-len(future_slots):]):
-        print(f"{slot}: {mean:.2f} ± {std:.2f}")
-
-    # Show typical average future prices from historical data if available
-    if df_history is not None:
-        matching = df_history[df_history["label"] == predicted_pattern]
-        if not matching.empty:
-            avg_future = np.mean(matching["future"].tolist(), axis=0)
-            typical_future = avg_future[-len(future_slots):]
-            print("\n📊 Typical average future prices for this pattern:")
-            for slot, price in zip(future_slots, typical_future):
-                print(f"{slot}: {price:.2f}")
-        else:
-            print("\n⚠️ No historical data available for this pattern.")
-    else:
-        print("\n⚠️ Historical data file not found.")
+    # Print predicted future prices (Wed AM to Sat PM)
+    days = ["Wed AM", "Wed PM", "Thu AM", "Thu PM", "Fri AM", "Fri PM", "Sat AM", "Sat PM"]
+    print("\n📈 Predicted prices for rest of week:")
+    for day, mean, std in zip(days, mean_pred.flatten(), std_pred.flatten()):
+        print(f"  {day}: {mean:.2f} ± {std:.2f}")

@@ -1,22 +1,21 @@
 import sys
-import os
 from pathlib import Path
 
-# Add the model_training folder to sys.path so we can import predict.py
+# Add model_training folder to sys.path to import predict.py
 model_training_path = Path(__file__).parent.parent / "model_training"
 sys.path.append(str(model_training_path))
 
 from predict import predict_from_partial
 
+def get_previous_pattern():
+    valid_patterns = ["large_spike", "small_spike", "decreasing", "random", "unknown"]
+    while True:
+        user_input = input(f"Enter the previous week's pattern {valid_patterns} (or 'unknown'): ").strip().lower()
+        if user_input in valid_patterns:
+            return user_input
+        print(f"Invalid input. Please enter one of {valid_patterns}.")
+
 def get_prices_from_user():
-    """
-    Prompt the user to enter turnip prices for each day and period (AM/PM).
-    User can enter:
-     - integer prices between 0 and 660
-     - 'skip' or empty to skip (stored as None)
-     - 'quit' or 'stop' to exit input early
-    Returns a list of prices or None for skipped values.
-    """
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     periods = ["AM", "PM"]
     prices = []
@@ -51,17 +50,17 @@ def get_prices_from_user():
     return prices
 
 def main():
+    previous_pattern = get_previous_pattern()
     partial_prices = get_prices_from_user()
 
-    # If user entered no data, exit early
     if len(partial_prices) == 0:
         print("No data entered. Exiting.")
         return
 
-    # Clean input: take only up to first 11 values (max prediction is for 12)
-    partial_prices = partial_prices[:11]
+    # Trim input to max 12 slots (full week)
+    partial_prices = partial_prices[:12]
 
-    # Filter out None values at the end (optional, but keep order)
+    # Remove trailing Nones for cleaner input
     while partial_prices and partial_prices[-1] is None:
         partial_prices.pop()
 
@@ -69,8 +68,7 @@ def main():
         print("No valid prices entered. Exiting.")
         return
 
-    # Call prediction function
-    predict_from_partial(partial_prices, model_folder=str(model_training_path))
+    predict_from_partial(partial_prices, model_folder=str(model_training_path), previous_pattern=previous_pattern)
 
 if __name__ == "__main__":
     main()
