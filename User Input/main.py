@@ -1,27 +1,30 @@
 import sys
 from pathlib import Path
 
-# Add model_training folder to sys.path to import predict.py
+# Add model_training folder to sys.path to allow importing predict
 model_training_path = Path(__file__).parent.parent / "model_training"
 sys.path.append(str(model_training_path))
 
 from predict import predict_from_partial
 
+
 def get_previous_pattern():
-    valid_patterns = ["large_spike", "small_spike", "decreasing", "random", "unknown"]
+    """Ask the user to input last week's pattern."""
+    valid_patterns = ["large_spike", "small_spike", "decreasing", "fluctuating", "unknown"]
     while True:
         user_input = input(f"Enter the previous week's pattern {valid_patterns} (or 'unknown'): ").strip().lower()
         if user_input in valid_patterns:
             return user_input
         print(f"Invalid input. Please enter one of {valid_patterns}.")
 
+
 def get_prices_from_user():
+    """Collect turnip prices for the current week from the user."""
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     periods = ["AM", "PM"]
     prices = []
 
-    print("📥 Please enter turnip prices for each time period (AM/PM).")
-    print("Enter a number between 0 and 660, 'skip' or empty to skip, 'quit' or 'stop' to finish input.\n")
+    print("Enter turnip prices for each time period (AM/PM). Type 'skip' or press Enter to skip a price, 'quit' or 'stop' to finish input.\n")
 
     for day in days:
         for period in periods:
@@ -29,10 +32,10 @@ def get_prices_from_user():
                 user_input = input(f"{day} {period}: ").strip().lower()
 
                 if user_input in ['quit', 'stop']:
-                    print("⚠️ Input stopped by user.")
+                    print("Input stopped by user.")
                     return prices
 
-                elif user_input in ['skip', '']:
+                elif user_input in ['', 'skip']:
                     prices.append(None)
                     break
 
@@ -43,32 +46,59 @@ def get_prices_from_user():
                             prices.append(value)
                             break
                         else:
-                            print("❌ Invalid number. Please enter 0-660, 'skip' or 'quit'.")
+                            print("Please enter a number between 0 and 660, or 'skip', 'quit'.")
                     except ValueError:
-                        print("❌ Invalid input. Please enter an integer, 'skip' or 'quit'.")
+                        print("Invalid input. Enter an integer, 'skip', or 'quit'.")
 
     return prices
 
+
 def main():
+    # Step 1: Get previous week's pattern
     previous_pattern = get_previous_pattern()
+
+    # Step 2: Get partial turnip prices from the user
     partial_prices = get_prices_from_user()
 
-    if len(partial_prices) == 0:
-        print("No data entered. Exiting.")
+    if not partial_prices:
+        print("No prices entered. Exiting.")
         return
 
-    # Trim input to max 12 slots (full week)
-    partial_prices = partial_prices[:12]
-
-    # Remove trailing Nones for cleaner input
+    # Remove trailing None values (e.g. if user just skipped at the end)
     while partial_prices and partial_prices[-1] is None:
         partial_prices.pop()
 
-    if len(partial_prices) == 0:
+    if not partial_prices:
         print("No valid prices entered. Exiting.")
         return
 
-    predict_from_partial(partial_prices, model_folder=str(model_training_path), previous_pattern=previous_pattern)
+    print("\nRunning prediction...\n")
+
+    # Step 3: Predict the pattern and the rest of the week's prices
+    predicted_pattern, predicted_prices = predict_from_partial(
+        partial_prices=partial_prices,
+        model_folder=str(model_training_path),
+        previous_pattern_raw=previous_pattern)
+
+    # Step 4: Print complete timeline of the week
+    if predicted_prices:
+        full_prices = partial_prices + predicted_prices
+
+        periods_labels = [
+            "Mon AM", "Mon PM", "Tue AM", "Tue PM",
+            "Wed AM", "Wed PM", "Thu AM", "Thu PM",
+            "Fri AM", "Fri PM", "Sat AM", "Sat PM"
+        ]
+
+        print("\n📅 Full week price timeline:")
+        for i, label in enumerate(periods_labels):
+            if i < len(partial_prices):
+                price = partial_prices[i]
+                print(f"{label}: {'❓' if price is None else price}")
+            else:
+                pred_index = i - len(partial_prices)
+                print(f"{label}: 🔮 {predicted_prices[pred_index]:.2f}")
+
 
 if __name__ == "__main__":
     main()
