@@ -23,7 +23,9 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
         previous_pattern_raw (str): Previous week's pattern as string.
 
     Returns:
-        tuple: predicted pattern and list of predicted prices.
+        tuple: predicted pattern (str), list of predicted prices (list of floats),
+               dict of pattern probabilities (pattern -> float),
+               list of tuples (mean, std) for confidence intervals.
     """
     model_folder = Path(model_folder)
 
@@ -54,18 +56,15 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
 
     # Predict pattern
     predicted_pattern = clf.predict(clf_input)[0]
-    print(f"\n🔮 Predicted pattern: {predicted_pattern}")
 
-    # Print prediction probabilities
+    # Prediction probabilities
     probs = clf.predict_proba(clf_input)[0]
-    for pattern, prob in zip(clf.classes_, probs):
-        print(f" - {pattern}: {prob*100:.2f}%")
 
     # Predict future prices using Gaussian Process model for the predicted pattern
     gp = regressors.get(predicted_pattern)
     if gp is None:
-        print(f"⚠️ No regressor found for pattern '{predicted_pattern}'. Cannot predict prices.")
-        return predicted_pattern, []
+        # Sem regressor para o padrão previsto
+        return predicted_pattern, [], dict(zip(clf.classes_, probs)), []
 
     # Use first 4 prices (Mon AM to Tue PM) as input to regressor
     gp_input = prices_imputed[:, :4]
@@ -73,7 +72,7 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
     mean_pred = mean_pred.ravel()
     std_pred = std_pred.ravel()
 
-    # Adjust prices for decreasing pattern to ensure smooth downward trend
+    # Adjust prices for decreasing pattern
     if predicted_pattern == "decreasing":
         last_known_price = gp_input[0, -1]
         for i in range(len(mean_pred)):
@@ -82,7 +81,7 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
             else:
                 mean_pred[i] = min(mean_pred[i], mean_pred[i - 1] * 0.98)
 
-    # Adjust prices for spike patterns to ensure at least 3 rises total
+    # Adjust prices for spike patterns
     if predicted_pattern in ["small_spike", "large_spike"]:
         num_rises_input = count_rises(partial_prices)
         min_rises_needed = 3
@@ -95,7 +94,6 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
             pred = mean_pred[i]
 
             if i == 0:
-                # Force first predicted value to be a spike (≥10% rise)
                 pred = max(pred, last_known_price * 1.1)
                 mean_pred_adjusted.append(pred)
                 if pred > last_known_price:
@@ -104,31 +102,19 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
                 prev = mean_pred_adjusted[-1]
 
                 if rises_so_far < remaining_rises_needed:
-                    # Force rise between 10%–20%
                     forced_min = prev * 1.10
                     forced_max = prev * 1.20
                     pred = np.clip(pred, forced_min, forced_max)
                     rises_so_far += 1
                 else:
-                    # After required rises, allow soft decline (max -5%)
                     pred = min(pred, prev * 0.95)
 
                 mean_pred_adjusted.append(pred)
 
         mean_pred = np.array(mean_pred_adjusted)
 
-    # Print predicted prices (Wed AM to Sat PM)
-    prediction_days_periods = [
-        ("Wednesday", "AM"), ("Wednesday", "PM"),
-        ("Thursday", "AM"), ("Thursday", "PM"),
-        ("Friday", "AM"), ("Friday", "PM"),
-        ("Saturday", "AM"), ("Saturday", "PM")
-    ]
+    # Retorna padrão previsto, lista de preços, probabilidades e intervalos de confiança
+    prob_dict = dict(zip(clf.classes_, probs))
+    ci_list = list(zip(mean_pred, std_pred))
 
-    print("\n📈 Predicted prices for rest of week:")
-    for i, (day, period) in enumerate(prediction_days_periods):
-        mean = mean_pred[i]
-        std = std_pred[i]
-        print(f"  {day} {period}: {mean:.2f} ± {std:.2f}")
-
-    return predicted_pattern, mean_pred.tolist()
+    return predicted_pattern, mean_pred.tolist(), prob_dict, ci_list
