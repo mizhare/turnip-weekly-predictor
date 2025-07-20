@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turnip Price Predictor</title>
+    <style>
+        @font-face {
+            font-family: 'Komika Axis';
+            src: url('/static/fonts/KOMIKAX_.ttf') format('truetype');
+        }
+
+        body {
+            background-color: #fff8e5; /* Pastel pink */
+            font-family: 'Komika Axis', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #febdc3;
+            color: #5c4033;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .pattern-section {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #5c4033;
+        }
+
+        /* Previous pattern select styling */
+        #previous-pattern {
+            background-color: #faf5ee; /* lighter beige */
+            color: #5c4033; /* brown text */
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .week-section {
+            background-color: #f0e5d8;
+            padding: 15px;
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .day-group {
+            background-color: #f0e5d8;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .day-group h3 {
+            text-align: center;
+            margin: 4px 0 8px;
+            background-color: #e3d3c3;
+            border-radius: 6px;
+            padding: 4px;
+            font-size: 16px;
+            color: #5c4033;
+        }
+
+        .day-group label {
+            display: block;
+            margin-top: 4px;
+            font-size: 14px;
+            color: #5c4033;
+        }
+
+        .day-group input[type="number"] {
+            width: 90%;
+            padding: 4px;
+            margin-top: 2px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            background-color: #faf5ee; /* lighter beige */
+            color: #5c4033; /* brown text */
+        }
+
+        .submit-section {
+            text-align: center;
+        }
+
+        .submit-section button {
+            background-color: #f4a261;
+            color: white;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-section button:hover {
+            background-color: #e78a4e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Turnip Price Predictor</h1>
+
+    <div class="pattern-section">
+        <label for="previous-pattern">Select the previous week's pattern:</label>
+        <select id="previous-pattern">
+            <option value="unknown">Unknown</option>
+            <option value="decreasing">Decreasing</option>
+            <option value="fluctuating">Fluctuating</option>
+            <option value="small_spike">Small Spike</option>
+            <option value="large_spike">Large Spike</option>
+        </select>
+    </div>
+
+    <div class="week-section">
+        <div class="day-group">
+            <h3>Monday</h3>
+            <label for="monday-am">AM:</label>
+            <input type="number" id="monday-am" placeholder="Enter price">
+            <label for="monday-pm">PM:</label>
+            <input type="number" id="monday-pm" placeholder="Enter price">
+        </div>
+
+        <div class="day-group">
+            <h3>Tuesday</h3>
+            <label for="tuesday-am">AM:</label>
+            <input type="number" id="tuesday-am" placeholder="Enter price">
+            <label for="tuesday-pm">PM:</label>
+            <input type="number" id="tuesday-pm" placeholder="Enter price">
+        </div>
+
+        <div class="day-group">
+            <h3>Wednesday</h3>
+            <label for="wednesday-am">AM:</label>
+            <input type="number" id="wednesday-am" placeholder="Enter price">
+            <label for="wednesday-pm">PM:</label>
+            <input type="number" id="wednesday-pm" placeholder="Enter price">
+        </div>
+
+        <div class="day-group">
+            <h3>Thursday</h3>
+            <label for="thursday-am">AM:</label>
+            <input type="number" id="thursday-am" placeholder="Enter price">
+            <label for="thursday-pm">PM:</label>
+            <input type="number" id="thursday-pm" placeholder="Enter price">
+        </div>
+
+        <div class="day-group">
+            <h3>Friday</h3>
+            <label for="friday-am">AM:</label>
+            <input type="number" id="friday-am" placeholder="Enter price">
+            <label for="friday-pm">PM:</label>
+            <input type="number" id="friday-pm" placeholder="Enter price">
+        </div>
+
+        <div class="day-group">
+            <h3>Saturday</h3>
+            <label for="saturday-am">AM:</label>
+            <input type="number" id="saturday-am" placeholder="Enter price">
+            <label for="saturday-pm">PM:</label>
+            <input type="number" id="saturday-pm" placeholder="Enter price">
+        </div>
+    </div>
+
+    <div class="submit-section">
+        <button id="predict-button">Predict</button>
+    </div>
+</body>
+</html>
