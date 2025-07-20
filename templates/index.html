@@ -57,11 +57,32 @@
             background-color: #f0e5d8;
             padding: 10px;
             border-radius: 8px;
+            justify-items: center;
+        }
+
+        .hours-group {
+            display: flex;
+            gap: 12px;
+            flex-direction: row;
+            justify-content: center;
+            align-self: center;
+            width: 70%;
+        }
+
+        .hours-group label {
+            text-align: center;
+        }
+
+        .hours-group input {
+            text-align: center;
+            width: 10px;
+            height: 25px;
         }
 
         .day-group h3 {
             text-align: center;
             margin: 4px 0 8px;
+            width: 100%;
             background-color: #e3d3c3;
             border-radius: 6px;
             padding: 4px;
@@ -108,71 +129,117 @@
     </style>
 </head>
 <body>
-    <h1>Turnip Price Predictor</h1>
+<h1>Turnip Price Predictor</h1>
 
-    <div class="pattern-section">
-        <label for="previous-pattern">Select the previous week's pattern:</label>
-        <select id="previous-pattern">
-            <option value="unknown">Unknown</option>
-            <option value="decreasing">Decreasing</option>
-            <option value="fluctuating">Fluctuating</option>
-            <option value="small_spike">Small Spike</option>
-            <option value="large_spike">Large Spike</option>
-        </select>
+<div class="pattern-section">
+    <label for="previous-pattern">Select the previous week's pattern:</label>
+    <select id="previous-pattern">
+        <option value="unknown">Unknown</option>
+        <option value="decreasing">Decreasing</option>
+        <option value="fluctuating">Fluctuating</option>
+        <option value="small_spike">Small Spike</option>
+        <option value="large_spike">Large Spike</option>
+    </select>
+</div>
+
+<div class="week-section">
+    <div class="day-group">
+        <h3>Monday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="monday-am">AM:</label>
+                <input type="number" id="monday-am" placeholder="Enter price">
+            </div>
+
+            <div>
+                <label for="monday-pm">PM:</label>
+                <input type="number" id="monday-pm" placeholder="Enter price">
+            </div>
+        </div>
+
     </div>
 
-    <div class="week-section">
-        <div class="day-group">
-            <h3>Monday</h3>
-            <label for="monday-am">AM:</label>
-            <input type="number" id="monday-am" placeholder="Enter price">
-            <label for="monday-pm">PM:</label>
-            <input type="number" id="monday-pm" placeholder="Enter price">
-        </div>
-
-        <div class="day-group">
-            <h3>Tuesday</h3>
-            <label for="tuesday-am">AM:</label>
-            <input type="number" id="tuesday-am" placeholder="Enter price">
-            <label for="tuesday-pm">PM:</label>
-            <input type="number" id="tuesday-pm" placeholder="Enter price">
-        </div>
-
-        <div class="day-group">
-            <h3>Wednesday</h3>
-            <label for="wednesday-am">AM:</label>
-            <input type="number" id="wednesday-am" placeholder="Enter price">
-            <label for="wednesday-pm">PM:</label>
-            <input type="number" id="wednesday-pm" placeholder="Enter price">
-        </div>
-
-        <div class="day-group">
-            <h3>Thursday</h3>
-            <label for="thursday-am">AM:</label>
-            <input type="number" id="thursday-am" placeholder="Enter price">
-            <label for="thursday-pm">PM:</label>
-            <input type="number" id="thursday-pm" placeholder="Enter price">
-        </div>
-
-        <div class="day-group">
-            <h3>Friday</h3>
-            <label for="friday-am">AM:</label>
-            <input type="number" id="friday-am" placeholder="Enter price">
-            <label for="friday-pm">PM:</label>
-            <input type="number" id="friday-pm" placeholder="Enter price">
-        </div>
-
-        <div class="day-group">
-            <h3>Saturday</h3>
-            <label for="saturday-am">AM:</label>
-            <input type="number" id="saturday-am" placeholder="Enter price">
-            <label for="saturday-pm">PM:</label>
-            <input type="number" id="saturday-pm" placeholder="Enter price">
+    <div class="day-group">
+        <h3>Tuesday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="tuesday-am">AM:</label>
+                <input type="number" id="tuesday-am" placeholder="Enter price">
+            </div>
+            <div>
+                <label for="tuesday-pm">PM:</label>
+                <input type="number" id="tuesday-pm" placeholder="Enter price">
+            </div>
         </div>
     </div>
 
-    <div class="submit-section">
-        <button id="predict-button">Predict</button>
+    <div class="day-group">
+        <h3>Wednesday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="wednesday-am">AM:</label>
+                <input type="number" id="wednesday-am" placeholder="Enter price">
+            </div>
+
+
+            <div>
+                <label for="wednesday-pm">PM:</label>
+                <input type="number" id="wednesday-pm" placeholder="Enter price">
+            </div>
+        </div>
+
     </div>
+
+    <div class="day-group">
+        <h3>Thursday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="thursday-am">AM:</label>
+                <input type="number" id="thursday-am" placeholder="Enter price">
+            </div>
+
+            <div>
+                <label for="thursday-pm">PM:</label>
+                <input type="number" id="thursday-pm" placeholder="Enter price">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="day-group">
+        <h3>Friday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="friday-am">AM:</label>
+                <input type="number" id="friday-am" placeholder="Enter price">
+            </div>
+
+            <div>
+                <label for="friday-pm">PM:</label>
+                <input type="number" id="friday-pm" placeholder="Enter price">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="day-group">
+        <h3>Saturday</h3>
+        <div class="hours-group">
+            <div>
+                <label for="saturday-am">AM:</label>
+                <input type="number" id="saturday-am" placeholder="Enter price">
+            </div>
+
+            <div>
+                <label for="saturday-pm">PM:</label>
+                <input type="number" id="saturday-pm" placeholder="Enter price">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="submit-section">
+    <button id="predict-button">Predict</button>
+</div>
 </body>
 </html>
