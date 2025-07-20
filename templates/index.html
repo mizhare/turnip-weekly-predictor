@@ -6,11 +6,11 @@
     <style>
         @font-face {
             font-family: 'Komika Axis';
-            src: url('/static/fonts/KOMIKAX_.ttf') format('truetype');
+            src: url('static/fonts/KOMIKAX_.ttf') format('truetype');
         }
 
         body {
-            background-color: #fff8e5; /* Pastel pink */
+            background-color: #fff8e5;
             font-family: 'Komika Axis', sans-serif;
             margin: 0;
             padding: 20px;
@@ -32,14 +32,14 @@
             color: #5c4033;
         }
 
-        /* Previous pattern select styling */
         #previous-pattern {
-            background-color: #faf5ee; /* lighter beige */
-            color: #5c4033; /* brown text */
+            color: #5c4033;
             font-size: 14px;
             padding: 6px 10px;
             border-radius: 6px;
-            border: 1px solid #ccc;
+            border: 2px solid;
+            border-color: #e3d3c3;
+            background-color: #f0e5d8;
             cursor: pointer;
         }
 
@@ -77,6 +77,7 @@
             text-align: center;
             width: 10px;
             height: 25px;
+            background-color: #e3d3c3;
         }
 
         .day-group h3 {
@@ -102,10 +103,11 @@
             padding: 4px;
             margin-top: 2px;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            border: 2px solid #ccc;
+            border-color: #e3d3c3;
             font-size: 14px;
-            background-color: #faf5ee; /* lighter beige */
-            color: #5c4033; /* brown text */
+            background-color: #fff8e5;
+            color: #5c4033;
         }
 
         .submit-section {
@@ -115,7 +117,7 @@
         .submit-section button {
             background-color: #f4a261;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
@@ -126,120 +128,63 @@
         .submit-section button:hover {
             background-color: #e78a4e;
         }
+
+        #prediction-result {
+            margin-top: 30px;
+            background-color: #f0e5d8;
+            padding: 20px;
+            border-radius: 10px;
+            color: #5c4033;
+            font-size: 16px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            white-space: pre-line;
+        }
     </style>
 </head>
 <body>
-<h1>Turnip Price Predictor</h1>
+    <h1>Turnip Price Predictor</h1>
 
-<div class="pattern-section">
-    <label for="previous-pattern">Select the previous week's pattern:</label>
-    <select id="previous-pattern">
-        <option value="unknown">Unknown</option>
-        <option value="decreasing">Decreasing</option>
-        <option value="fluctuating">Fluctuating</option>
-        <option value="small_spike">Small Spike</option>
-        <option value="large_spike">Large Spike</option>
-    </select>
-</div>
-
-<div class="week-section">
-    <div class="day-group">
-        <h3>Monday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="monday-am">AM:</label>
-                <input type="number" id="monday-am" placeholder="Enter price">
-            </div>
-
-            <div>
-                <label for="monday-pm">PM:</label>
-                <input type="number" id="monday-pm" placeholder="Enter price">
-            </div>
+    <form method="post" action="/prever">
+        <div class="pattern-section">
+            <label for="previous-pattern">Select the previous week's pattern:</label>
+            <select id="previous-pattern" name="previous_pattern">
+                <option value="unknown">Unknown</option>
+                <option value="decreasing">Decreasing</option>
+                <option value="fluctuating">Fluctuating</option>
+                <option value="small_spike">Small Spike</option>
+                <option value="large_spike">Large Spike</option>
+            </select>
         </div>
 
-    </div>
-
-    <div class="day-group">
-        <h3>Tuesday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="tuesday-am">AM:</label>
-                <input type="number" id="tuesday-am" placeholder="Enter price">
+        <div class="week-section">
+            {% for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] %}
+            <div class="day-group">
+                <h3>{{ day.capitalize() }}</h3>
+                <div class="hours-group">
+                    <div>
+                        <label for="{{ day }}-am">AM:</label>
+                        <input type="number" id="{{ day }}-am" name="{{ day }}_am" placeholder="Enter price">
+                    </div>
+                    <div>
+                        <label for="{{ day }}-pm">PM:</label>
+                        <input type="number" id="{{ day }}-pm" name="{{ day }}_pm" placeholder="Enter price">
+                    </div>
+                </div>
             </div>
-            <div>
-                <label for="tuesday-pm">PM:</label>
-                <input type="number" id="tuesday-pm" placeholder="Enter price">
-            </div>
-        </div>
-    </div>
-
-    <div class="day-group">
-        <h3>Wednesday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="wednesday-am">AM:</label>
-                <input type="number" id="wednesday-am" placeholder="Enter price">
-            </div>
-
-
-            <div>
-                <label for="wednesday-pm">PM:</label>
-                <input type="number" id="wednesday-pm" placeholder="Enter price">
-            </div>
+            {% endfor %}
         </div>
 
-    </div>
-
-    <div class="day-group">
-        <h3>Thursday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="thursday-am">AM:</label>
-                <input type="number" id="thursday-am" placeholder="Enter price">
-            </div>
-
-            <div>
-                <label for="thursday-pm">PM:</label>
-                <input type="number" id="thursday-pm" placeholder="Enter price">
-            </div>
+        <div class="submit-section">
+            <button id="predict-button" type="submit">Predict</button>
         </div>
+    </form>
 
-    </div>
-
-    <div class="day-group">
-        <h3>Friday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="friday-am">AM:</label>
-                <input type="number" id="friday-am" placeholder="Enter price">
-            </div>
-
-            <div>
-                <label for="friday-pm">PM:</label>
-                <input type="number" id="friday-pm" placeholder="Enter price">
-            </div>
+    {% if prediction %}
+        <div id="prediction-result">
+            {{ prediction | safe }}
         </div>
-
-    </div>
-
-    <div class="day-group">
-        <h3>Saturday</h3>
-        <div class="hours-group">
-            <div>
-                <label for="saturday-am">AM:</label>
-                <input type="number" id="saturday-am" placeholder="Enter price">
-            </div>
-
-            <div>
-                <label for="saturday-pm">PM:</label>
-                <input type="number" id="saturday-pm" placeholder="Enter price">
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="submit-section">
-    <button id="predict-button">Predict</button>
-</div>
+    {% endif %}
 </body>
 </html>
