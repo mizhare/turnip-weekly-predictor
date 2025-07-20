@@ -63,7 +63,6 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
     # Predict future prices using Gaussian Process model for the predicted pattern
     gp = regressors.get(predicted_pattern)
     if gp is None:
-        # Sem regressor para o padrão previsto
         return predicted_pattern, [], dict(zip(clf.classes_, probs)), []
 
     # Use first 4 prices (Mon AM to Tue PM) as input to regressor
@@ -112,8 +111,7 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
                 mean_pred_adjusted.append(pred)
 
         mean_pred = np.array(mean_pred_adjusted)
-
-    # Retorna padrão previsto, lista de preços, probabilidades e intervalos de confiança
+        
     prob_dict = dict(zip(clf.classes_, probs))
     ci_list = list(zip(mean_pred, std_pred))
 
