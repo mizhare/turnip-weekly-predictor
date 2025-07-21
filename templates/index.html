@@ -10,7 +10,9 @@
         }
 
         body {
-            background-color: #fff8e5;
+            background-image: url('static/bg_rat.png');
+            background-repeat: repeat;
+            background-size: 85px 85px;
             font-family: 'Komika Axis', sans-serif;
             margin: 0;
             padding: 20px;
@@ -41,7 +43,7 @@
 
         #previous-pattern {
             color: #5c4033;
-            font-size: 14px;
+            font-size: 18px;
             padding: 6px 8px;
             border-radius: 4px;
             border: 2px solid;
@@ -160,16 +162,18 @@
 <body>
     <h1>Rat-A-Turnip Price Predictor</h1>
 
-   <p class="turnip-text">
+   <p class="turnip-text" style="margin-bottom: 8px;">
    Welcome to the Rat-A-Turnip Price Predictor! Rat-at-ta, we sniff out profit like a turnip-savvy snitch 🐭✨
 </p>
-<p class="turnip-text">
+<p class="turnip-text" style="margin-bottom: 8px;">
    With a little luck, you’ll bloom richer than a bell tree — unless your bells fall in the wrong ditch...<br>
-   Well, never mind, just enter the previous pattern if you know it, and the prices you have, for a big surprise ahead!
+</p>
+    <p class="turnip-text" style="margin-bottom: 40px;">
+  Well, never mind, just enter the previous pattern if you know it, and the prices you have, for a big surprise ahead!
 </p>
 
     <form method="post" action="/prever">
-        <div class="pattern-section">
+        <div class="pattern-section" style="margin-bottom: 25px;">>
             <label for="previous-pattern">Select the previous week's pattern:</label>
             <select id="previous-pattern" name="previous_pattern">
                 <option value="unknown">Unknown</option>
