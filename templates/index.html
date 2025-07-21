@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Turnip Price Predictor</title>
+    <title>Rat-A-Turnip Price Predictor</title>
     <style>
         @font-face {
             font-family: 'Komika Axis';
@@ -14,6 +14,13 @@
             font-family: 'Komika Axis', sans-serif;
             margin: 0;
             padding: 20px;
+        }
+
+        .turnip-text {
+        font-family: 'Patrick Hand', cursive;
+        color: #5c4033;
+        font-size: 17px;
+        text-align: center;
         }
 
         h1 {
@@ -35,12 +42,14 @@
         #previous-pattern {
             color: #5c4033;
             font-size: 14px;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 6px 8px;
+            border-radius: 4px;
             border: 2px solid;
             border-color: #e3d3c3;
             background-color: #f0e5d8;
             cursor: pointer;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 16px
         }
 
         .week-section {
@@ -108,6 +117,8 @@
             font-size: 14px;
             background-color: #fff8e5;
             color: #5c4033;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 16px;
         }
 
         .submit-section {
@@ -120,9 +131,12 @@
             font-size: 16px;
             padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 9px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-family: 'Patrick Hand', cursive;
+            font-weight: bold;
+            font-size: 18px
         }
 
         .submit-section button:hover {
@@ -144,7 +158,15 @@
     </style>
 </head>
 <body>
-    <h1>Turnip Price Predictor</h1>
+    <h1>Rat-A-Turnip Price Predictor</h1>
+
+   <p class="turnip-text">
+   Welcome to the Rat-A-Turnip Price Predictor! Rat-at-ta, we sniff out profit like a turnip-savvy snitch 🐭✨
+</p>
+<p class="turnip-text">
+   With a little luck, you’ll bloom richer than a bell tree — unless your bells fall in the wrong ditch...<br>
+   Well, never mind, just enter the previous pattern if you know it, and the prices you have, for a big surprise ahead!
+</p>
 
     <form method="post" action="/prever">
         <div class="pattern-section">
@@ -181,10 +203,47 @@
         </div>
     </form>
 
-    {% if prediction %}
-        <div id="prediction-result">
+    {% if prediction and plot_div %}
+    <div id="prediction-result" style="
+        max-width: 900px;
+        margin: 20px auto;
+        background-color: #f0e5d8;
+        padding: 20px;
+        border-radius: 10px;
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        color: #5c4033;
+        font-size: 16px;
+        white-space: pre-line;
+    ">
+        <div style="flex: 1; min-width: 300px;">
             {{ prediction | safe }}
         </div>
-    {% endif %}
+        <div style="flex: 1; min-width: 450px; display: flex; align-items: flex-start;">
+    <div style="margin-top: -70px; width: 100%;">
+        {{ plot_div | safe }}
+    </div>
+</div>
+    </div>
+{% elif prediction %}
+    <div id="prediction-result" style="
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #f0e5d8;
+        padding: 20px;
+        border-radius: 10px;
+        color: #5c4033;
+        font-size: 16px;
+        white-space: pre-line;
+    ">
+        {{ prediction | safe }}
+    </div>
+{% elif plot_div %}
+    <div style="flex: 1; min-width: 300px; position: relative; top: -20px;">
+        {{ plot_div | safe }}
+    </div>
+{% endif %}
+
 </body>
 </html>
