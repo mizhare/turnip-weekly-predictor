@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 import sys
 from pathlib import Path
 import os
+import plotly.graph_objs as go
+from plotly.offline import plot
 
 app = Flask(__name__)
 
@@ -21,7 +23,6 @@ def prever():
         periods = ["am", "pm"]
 
         partial_prices = []
-
         for day in days:
             for period in periods:
                 key = f"{day}_{period}"
@@ -39,9 +40,8 @@ def prever():
             previous_pattern_raw=previous_pattern_raw
         )
 
-        num_parciais = len([p for p in partial_prices if p is not None])
-
-        full_prices = partial_prices[:num_parciais] + predicted_prices
+        num_partial = len([p for p in partial_prices if p is not None])
+        full_prices = partial_prices[:num_partial] + predicted_prices
         while len(full_prices) < 12:
             full_prices.append(None)
 
@@ -51,7 +51,7 @@ def prever():
             "Fri AM", "Fri PM", "Sat AM", "Sat PM"
         ]
 
-        resultado_texto = "<br>".join(
+        result_text = "<br>".join(
             f"{label}: {'❓' if price is None else f'{price:.2f}'}"
             for label, price in zip(labels, full_prices)
         )
@@ -61,7 +61,7 @@ def prever():
             for pattern, prob in pattern_probabilities.items()
         )
 
-        predicted_start = num_parciais
+        predicted_start = num_partial
         ci_labels = labels[predicted_start:]
 
         ci_text = "<br>".join(
@@ -69,14 +69,77 @@ def prever():
             for label, (mean, std) in zip(ci_labels, confidence_intervals)
         )
 
-        resultado_texto += f"<br><br>🔮 Predicted pattern: <b>{predicted_pattern}</b><br><br>"
-        resultado_texto += probs_text + "<br><br>"
-        resultado_texto += "<b>Predicted prices with confidence intervals:</b><br>" + ci_text
+        result_text = f'🔮 Predicted pattern: <span style="color:#e78a4e;">{predicted_pattern}</span><br><br>'
 
-        return render_template("index.html", prediction=resultado_texto)
+        probs_text = "<br>".join(
+            f'{pattern}: <span style="color:#e78a4e;font-family: Patrick Hand, cursive; font-size: 18px;font-weight: bold;">{prob * 100:.2f}%</span>'
+            for pattern, prob in pattern_probabilities.items()
+        )
+
+        result_text += probs_text + "<br><br>"
+        result_text += "<b>Predicted prices with confidence intervals:</b><br>"
+        result_text += "<br>".join(
+            f'{label}: <span style="color:#e78a4e; font-family: Patrick Hand, cursive; font-size: 18px;font-weight: bold;">{mean:.2f} ± {std:.2f}</span>'
+            for label, (mean, std) in zip(ci_labels, confidence_intervals)
+        )
+
+        fig = go.Figure(data=[go.Bar(
+            x=labels,
+            y=[price if price is not None else 0 for price in full_prices],
+            marker_color='#FFBCC4'  # cor rosa
+        )])
+        fig.update_layout(
+            title=dict(
+                text="<b>Bells</b>",
+                x=0.5,
+                y=0.83,
+                xanchor='center',
+                yanchor='top',
+                font=dict(
+                    family="Komika Axis",
+                    size=17,
+                    color="#5c4033",
+                )
+            ),
+            xaxis=dict(
+                title=dict(
+                    text="<b>Time of day</b>",
+                    font=dict(
+                        family="Komika Axis",
+                        size=17,
+                        color="#5c4033",
+                    ),
+                    standoff=28
+                ),
+                showgrid=False,
+                zeroline=True,
+                zerolinecolor="#5c4033",
+            ),
+            yaxis=dict(
+                range=[0, max([p for p in full_prices if p is not None] + [100]) * 1.2],
+                showgrid=True,
+                gridcolor="#5c4033",
+                zeroline=True,
+                zerolinecolor="#5c4033",
+            ),
+            plot_bgcolor="#f0e5d8",
+            paper_bgcolor="#f0e5d8",
+            font=dict(
+                family='Patrick Hand, cursive',
+                size=18,
+                color='#5c4033'
+            )
+        )
+        plot_div = plot(fig, output_type='div', include_plotlyjs=True)
+        print(plot_div)
+        return render_template(
+            "index.html",
+            prediction=result_text,
+            plot_div=plot_div
+        )
 
     except Exception as e:
-        return render_template("index.html", prediction=f"Erro: {str(e)}")
+        return render_template("index.html", prediction=f"Error: {str(e)}")
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
