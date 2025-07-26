@@ -1,9 +1,11 @@
+import random
 import matplotlib.pyplot as plt
 from sklearn.tree import plot_tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import classification_report
 import joblib
 import numpy as np
 from pathlib import Path
@@ -11,12 +13,36 @@ from pathlib import Path
 from utils import parse_dataset, prepare_dataset, augment_week
 from manual_pattern import detect_pattern
 
+
 def flatten_week(week_dict, days=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], periods_per_day=2):
     """Flatten a dictionary week format into a flat list of prices ordered by day and AM/PM."""
     flat = []
     for day in days:
         flat.extend(week_dict[day])
     return flat
+
+
+def generate_decreasing_week(base_week, noise_level=0.05):
+    """
+    Create a synthetic decreasing version from a base week.
+    Applies slight noise while maintaining decreasing order.
+    """
+    flat_week = flatten_week(base_week)
+
+    # Ensure prices decrease smoothly
+    for i in range(1, len(flat_week)):
+        # Make sure price[i] < price[i-1] with a small random gap
+        flat_week[i] = min(flat_week[i], flat_week[i-1] - random.uniform(0.5, 3.0))
+
+    # Apply light noise to avoid perfectly linear sequence
+    noisy_week = augment_week(flat_week, noise_level=noise_level)
+
+    # Fix to guarantee decreasing order after noise
+    for i in range(1, len(noisy_week)):
+        noisy_week[i] = min(noisy_week[i], noisy_week[i-1] - 0.1)
+
+    return noisy_week
+
 
 def main():
     filepath = "turnips_prices.xlsx"
@@ -30,7 +56,7 @@ def main():
     # Start with original dataset
     augmented_dataset = dataset.copy()
 
-    # Add 3 noisy versions per week for data augmentation
+    # Add 3 noisy versions per week for data augmentation (general)
     for week in dataset:
         flat_week = flatten_week(week)
 
@@ -43,6 +69,17 @@ def main():
                 noisy_week_dict[day] = noisy_flat[i * periods_per_day : (i + 1) * periods_per_day]
 
             augmented_dataset.append(noisy_week_dict)
+
+    # Generate more synthetic decreasing weeks to balance the dataset
+    decreasing_weeks = [week for week in dataset if detect_pattern(flatten_week(week)) == "decreasing"]
+
+    for base_week in decreasing_weeks:
+        for _ in range(10):  # generate 10 artificial versions per original decreasing week
+            dec_flat = generate_decreasing_week(base_week)
+            dec_week_dict = {}
+            for i, day in enumerate(days):
+                dec_week_dict[day] = dec_flat[i * periods_per_day : (i + 1) * periods_per_day]
+            augmented_dataset.append(dec_week_dict)
 
     print(f"✅ Data augmentation complete. Total weeks: {len(augmented_dataset)}")
 
@@ -85,6 +122,11 @@ def main():
     # Train classifier
     clf = RandomForestClassifier(random_state=42, max_depth=5, class_weight='balanced')
     clf.fit(X_final, y_filtered)
+
+    # Show classification report on training set
+    print("\n📋 Classification Report (training set):")
+    y_pred_train = clf.predict(X_final)
+    print(classification_report(y_filtered, y_pred_train, target_names=clf.classes_))
 
     # Plot the first decision tree for visualization
     feature_names = [f"{day}_{period}" for day in days for period in ["AM", "PM"]]
@@ -154,6 +196,7 @@ def main():
     joblib.dump(encoder, "previous_pattern_encoder.joblib")
 
     print("\n✅ All models saved successfully!")
+
 
 if __name__ == "__main__":
     main()

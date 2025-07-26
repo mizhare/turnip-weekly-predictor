@@ -5,18 +5,11 @@ def detect_pattern(prices):
     if len(prices_valid) < 4:
         return "unknown"
 
-    # Use only the first 4 values to detect a decreasing pattern
-    initial_segment = prices_valid[:4]
-
-    # Check for decreasing pairs in the initial segment
-    pairs = list(zip(initial_segment, initial_segment[1:]))
-    decreasing_pairs = sum(1 for earlier, later in pairs if earlier > later)
-
-    # If all 3 pairs are decreasing, classify as decreasing
-    if decreasing_pairs == 3:
+    # Check for decreasing pattern across all available values
+    if all(earlier > later for earlier, later in zip(prices_valid, prices_valid[1:])):
         return "decreasing"
 
-    # If not decreasing, evaluate for spikes using the full week
+    # Spike detection logic as before
     initial_avg = sum(prices_valid[:3]) / 3
     max_val = max(prices_valid)
     max_idx = prices_valid.index(max_val)
@@ -31,3 +24,32 @@ def detect_pattern(prices):
         return "small_spike"
 
     return "fluctuating"
+
+
+"""if __name__ == "__main__":
+    print("=== Pattern Detection Test ===")
+
+    # Labels for days/times to guide user input
+    time_labels = ["Mon AM", "Mon PM", "Tue AM", "Tue PM", "Wed AM", "Wed PM", "Thu AM", "Thu PM", "Fri AM", "Fri PM",
+                   "Sat AM", "Sat PM"]
+
+    # Collect input prices
+    prices = []
+    print("Enter your turnip prices for each time period. Press Enter to skip a time slot:")
+    for label in time_labels:
+        raw = input(f"{label}: ").strip()
+        if raw == "":
+            prices.append(None)
+        else:
+            try:
+                price = float(raw)
+                prices.append(price)
+            except ValueError:
+                print("Invalid input. Using None.")
+                prices.append(None)
+
+    # Detect pattern
+    result = detect_pattern(prices)
+
+    # Output
+    print("\n🔍 Detected Pattern:", result)"""
