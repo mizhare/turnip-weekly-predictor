@@ -3,215 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <title>Rat-A-Turnip Price Predictor</title>
-    <style>
-        @font-face {
-            font-family: 'Komika Axis';
-            src: url('static/fonts/KOMIKAX_.ttf') format('truetype');
-        }
-
-        body {
-            background-image: url('static/bg_rat.png');
-            background-repeat: repeat;
-            background-size: 85px 85px;
-            font-family: 'Komika Axis', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .turnip-text {
-        font-family: 'Patrick Hand', cursive;
-        color: #5c4033;
-        font-size: 16px;
-        text-align: center;
-        }
-
-        h1 {
-            text-align: center;
-            background-color: #febdc3;
-            color: #5c4033;
-            padding: 14px;
-            border-radius: 70px;
-            margin: 40px 180px;
-            font-size: 35px;
-            text-align: center;
-            font-family: 'Chelsea Market', cursive;
-        }
-
-        .pattern-section {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #5c4033;
-        }
-
-        #previous-pattern {
-            color: #5c4033;
-            font-size: 16px;
-            padding: 6px 8px;
-            border-radius: 4px;
-            border: 2px dashed;
-            border-color: #e3d3c3;
-            background-color: #f0e5d8;
-            cursor: pointer;
-            font-family: 'Patrick Hand', cursive;
-        }
-
-        .week-section {
-            padding: 15px;
-            border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin: 30px 180px;
-        }
-
-        .day-group {
-            background-color: rgba(240,228,220, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 3px dashed #f0e5d8;
-            justify-items: center;
-        }
-
-        .hours-group {
-            display: flex;
-            gap: 10px;
-            flex-direction: row;
-            justify-content: center;
-            align-self: center;
-            width: 60%;
-        }
-
-        .hours-group label {
-            text-align: center;
-        }
-
-        .hours-group input {
-            text-align: center;
-            width: 10px;
-            height: 25px;
-            background-color: #e3d3c3;
-        }
-
-        .day-group h3 {
-            text-align: center;
-            width: 95%;
-            background-color: rgba(240,196,196, 0.30);
-            border-radius: 12px;
-            padding: 4px;
-            font-size: 16px;
-            color: #5c4033;
-            margin: 10px 150px;
-        }
-
-        .day-group label {
-            display: block;
-            margin-top: 4px;
-            font-size: 16px;
-            color: #5c4033;
-        }
-
-        .day-group input[type="number"] {
-            width: 90%;
-            padding: 4px;
-            margin-top: 2px;
-            border-radius: 5px;
-            border: 2px solid #ccc;
-            border-color: #e3d3c3;
-            font-size: 15px;
-            background-color: #fff8e5;
-            color: #5c4033;
-            font-family: 'Patrick Hand', cursive;
-            font-size: 16px;
-        }
-
-        .submit-section {
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .submit-section button {
-            background-color: #f4a261;
-            color: white;
-            padding: 10px 40px;
-            border: 4px dotted rgba(240,196,196);
-            border-radius: 9px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Chelsea Market';
-            font-weight: bold;
-            font-size: 18px
-        }
-
-        .submit-section button:hover {
-            background-color: #e78a4e;
-        }
-
-        #prediction-result {
-            margin-top: 30px;
-            background-color: #f0e5d8;
-            padding: 20px;
-            border-radius: 10px;
-            color: #5c4033;
-            font-size: 16px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            white-space: pre-line;
-        }
-    </style>
 </head>
 <body>
-    <h1>Rat-A-Turnip Price Predictor</h1>
-<body>
-   <p class="turnip-text" style="margin-bottom: 8px;">
-   Welcome to the Rat-A-Turnip Price Predictor! Rat-at-ta, we sniff out profit like a <b>turnip-savvy snitch</b> 🐭✨
+<h1>Rat-A-Turnip Price Predictor</h1>
+<p class="turnip-text" style="margin-bottom: 8px;">
+    Welcome to the Rat-A-Turnip Price Predictor! Rat-at-ta, we sniff out profit like a <b>turnip-savvy snitch</b> 🐭✨
 </p>
 <p class="turnip-text" style="margin-bottom: 8px;">
-   With a little luck, you’ll bloom richer than a bell tree — <i>unless your bells fall in the wrong ditch...</i><br>
+    With a little luck, you’ll bloom richer than a bell tree — <i>unless your bells fall in the wrong ditch...</i><br>
 </p>
-    <p class="turnip-text" style="margin-bottom: 40px;">
-  Well, never mind! Just enter the previous pattern if you know it, and the prices you have, for a big surprise ahead!
+<p class="turnip-text" style="margin-bottom: 40px;">
+    Well, never mind! Just enter the previous pattern if you know it, and the prices you have, for a big surprise ahead!
 </p>
 
-    <hr style="border: none; border-top: 2px solid rgba(88,68,52, 0.6); margin: 30px 200px;">
-    <form method="post" action="/prever">
-        <div class="pattern-section" style="margin-bottom: 28px;">>
-            <label for="previous-pattern" style="font-size: 18px;">Select the previous week's pattern:</label>
-            <select id="previous-pattern" name="previous_pattern">
-                <option value="unknown">Unknown</option>
-                <option value="decreasing">Decreasing</option>
-                <option value="fluctuating">Fluctuating</option>
-                <option value="small_spike">Small Spike</option>
-                <option value="large_spike">Large Spike</option>
-            </select>
-        </div>
+<hr style="border: none; border-top: 2px solid rgba(88,68,52, 0.6); margin: 30px 25%">
+<form method="post" action="/prever">
+    <div class="pattern-section" style="margin-bottom: 28px;">>
+        <label for="previous-pattern" style="font-size: 18px;">Select the previous week's pattern:</label>
+        <select id="previous-pattern" name="previous_pattern">
+            <option value="unknown">Unknown</option>
+            <option value="decreasing">Decreasing</option>
+            <option value="fluctuating">Fluctuating</option>
+            <option value="small_spike">Small Spike</option>
+            <option value="large_spike">Large Spike</option>
+        </select>
+    </div>
 
-        <div class="week-section">
-            {% for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] %}
-            <div class="day-group">
-                <h3>{{ day.capitalize() }}</h3>
-                <div class="hours-group">
-                    <div>
-                        <label for="{{ day }}-am">AM:</label>
-                        <input type="number" id="{{ day }}-am" name="{{ day }}_am" placeholder="Enter price">
-                    </div>
-                    <div>
-                        <label for="{{ day }}-pm">PM:</label>
-                        <input type="number" id="{{ day }}-pm" name="{{ day }}_pm" placeholder="Enter price">
-                    </div>
+    <div class="week-section">
+        {% for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] %}
+        <div class="day-group">
+            <h3>{{ day.capitalize() }}</h3>
+            <div class="hours-group">
+                <div>
+                    <label for="{{ day }}-am">AM:</label>
+                    <input type="number" id="{{ day }}-am" name="{{ day }}_am" placeholder="Enter price">
+                </div>
+                <div>
+                    <label for="{{ day }}-pm">PM:</label>
+                    <input type="number" id="{{ day }}-pm" name="{{ day }}_pm" placeholder="Enter price">
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
+    </div>
 
-        <div class="submit-section">
-            <button id="predict-button" type="submit">Predict</button>
-        </div>
-    </form>
+    <div class="submit-section">
+        <button id="predict-button" type="submit">Predict</button>
+    </div>
+</form>
 
-    {% if prediction and plot_div %}
-    <div id="prediction-result" style="
+{% if prediction and plot_div %}
+<div id="prediction-result" style="
         max-width: 900px;
         margin: 20px auto;
         background-color: #f0e5d8;
@@ -224,17 +69,17 @@
         font-size: 16px;
         white-space: pre-line;
     ">
-        <div style="flex: 1; min-width: 300px;">
-            {{ prediction | safe }}
+    <div style="flex: 1;">
+        {{ prediction | safe }}
+    </div>
+    <div style="flex: 1; display: flex; align-items: flex-start;">
+        <div style="margin-top: -70px; width: 100%;">
+            {{ plot_div | safe }}
         </div>
-        <div style="flex: 1; min-width: 450px; display: flex; align-items: flex-start;">
-    <div style="margin-top: -70px; width: 100%;">
-        {{ plot_div | safe }}
     </div>
 </div>
-    </div>
 {% elif prediction %}
-    <div id="prediction-result" style="
+<div id="prediction-result" style="
         max-width: 800px;
         margin: 20px auto;
         background-color: #f0e5d8;
@@ -244,12 +89,12 @@
         font-size: 16px;
         white-space: pre-line;
     ">
-        {{ prediction | safe }}
-    </div>
+    {{ prediction | safe }}
+</div>
 {% elif plot_div %}
-    <div style="flex: 1; min-width: 300px; position: relative; top: -20px;">
-        {{ plot_div | safe }}
-    </div>
+<div style="flex: 1; position: relative; top: -20px;">
+    {{ plot_div | safe }}
+</div>
 {% endif %}
 
 </body>
