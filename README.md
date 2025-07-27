@@ -1,5 +1,7 @@
 # Rat-A-Turnip Price Predictor
 
+![](https://github.com/mizhare/turnip-weekly-predictor/blob/main/static/prediction-gif.gif)
+
 ### Overview
 
 This is a turnip price predictor project inspired by the game _Animal Crossing: New Horizons_ from Nintendo. I found it to be a rich and rewarding full-stack project, that would help me solidify some of the Machine Learning knowledge I'm currently studying. On the back-end, I used **Flask** to handle the prediction logic and serve the app, while the front-end was built using **HTML** and **CSS** for layout and styling.
