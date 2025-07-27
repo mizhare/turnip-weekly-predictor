@@ -82,33 +82,22 @@ def predict_from_partial(partial_prices, model_folder, previous_pattern_raw):
 
     # Adjust prices for spike patterns
     if predicted_pattern in ["small_spike", "large_spike"]:
-        num_rises_input = count_rises(partial_prices)
-        min_rises_needed = 3
-        remaining_rises_needed = max(0, min_rises_needed - num_rises_input)
-        last_known_price = gp_input[0, -1]
+        # Force a spike mid-week
+        base_price = gp_input[0, -1]
+        peak_multiplier = 2.0 if predicted_pattern == "large_spike" else 1.5
+
+        peak_pos = 4  # Wednesday PM
         mean_pred_adjusted = []
-        rises_so_far = 0
 
         for i in range(len(mean_pred)):
-            pred = mean_pred[i]
-
-            if i == 0:
-                pred = max(pred, last_known_price * 1.1)
-                mean_pred_adjusted.append(pred)
-                if pred > last_known_price:
-                    rises_so_far += 1
+            if i == peak_pos:
+                pred = base_price * peak_multiplier
+            elif i < peak_pos:
+                pred = base_price * (1 + 0.05 * i)
             else:
-                prev = mean_pred_adjusted[-1]
+                pred = base_price * max(0.4, 1 - 0.2 * (i - peak_pos))
 
-                if rises_so_far < remaining_rises_needed:
-                    forced_min = prev * 1.10
-                    forced_max = prev * 1.20
-                    pred = np.clip(pred, forced_min, forced_max)
-                    rises_so_far += 1
-                else:
-                    pred = min(pred, prev * 0.95)
-
-                mean_pred_adjusted.append(pred)
+            mean_pred_adjusted.append(pred)
 
         mean_pred = np.array(mean_pred_adjusted)
         
