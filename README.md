@@ -4,7 +4,7 @@
 
 ### Overview
 
-This is a turnip price predictor project inspired by the game _Animal Crossing: New Horizons_ from Nintendo. I found it to be a rich and rewarding full-stack project, that would help me solidify some of the Machine Learning knowledge I'm currently studying. On the back-end, I used **Flask** to handle the prediction logic and serve the app, while the front-end was built using **HTML** and **CSS** for layout and styling.
+This is a turnip price predictor project inspired by the game _Animal Crossing: New Horizons_. I found it to be a rich and rewarding full-stack project, that would help me solidify some of the Machine Learning knowledge I'm currently studying. On the back-end, I used **Flask** to handle the prediction logic and serve the app, while the front-end was built using **HTML** and **CSS** for layout and styling.
 
 It was especially enjoyable to integrate all the components from model training and serialization with **joblib**, to input handling, user interface design, and displaying forecast results in a playful, themed way with some touches from my personal branding (🐭). For deployment, I used **Render** to bring the application online, making it accessible as a simple and responsive web app.
 
