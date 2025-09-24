@@ -6,6 +6,8 @@
 
 This is a turnip price predictor project inspired by the game _Animal Crossing: New Horizons_. I found it to be a rich and rewarding full-stack project, that would help me solidify some of the Machine Learning knowledge I'm currently studying. On the back-end, I used **Flask** to handle the prediction logic and serve the app, while the front-end was built using **HTML** and **CSS** for layout and styling.
 
+I collected data from approximately 38 weeks of the game (still under development) and trained Random Forest models combined with Gaussian Process Regressors to predict future weeks. The approach included implementing pattern screening logic before training, balancing the dataset, and splitting it into training and testing sets. Predictions were then evaluated on real weeks from my gameplay, both with complete data and with missing values, to simulate realistic scenarios.
+
 It was especially enjoyable to integrate all the components from model training and serialization with **joblib**, to input handling, user interface design, and displaying forecast results in a playful, themed way with some touches from my personal branding (🐭). For deployment, I used **Render** to bring the application online, making it accessible as a simple and responsive web app.
 
 Even though the project is still a work in progress, the hands-on experience of bringing machine learning into a web context and taking it all the way to deployment has been both challenging and exciting experience.
@@ -13,6 +15,22 @@ Even though the project is still a work in progress, the hands-on experience of 
 
 Access this [link](https://turnip-predictor.onrender.com) and enter the turnip prices for your current week (ideally at least 4 prices) to improve the accuracy of the predicted pattern.  If you know the previous week's pattern, you can select it using the button above. (Keep in mind that it can influence the prediction for the current week.)
 
+### About
+
+In the game, there are several possible turnip price patterns, also influenced by the previous week on the player's island:
+
+Fluctuating: Prices rise and fall in an unstable manner.  
+Small Spike: Prices start low, with a possible significant increase between Wednesday and Friday.  
+Large Spike: Similar to the small spike but with much higher peak values.  
+Decreasing: Prices continuously fall throughout the week.
+
+### Project Structure
+
+utils.py → Common utility functions used across the project.  
+model_training/ → Contains dataset transformations, pattern logic, training scripts, and trained models (rf_classifier.joblib, regressors, encoders, etc.).  
+manual_training.py → Trains the models using historical labeled data.  
+predict.py → Runs predictions based on partial weekly inputs (mainly for internal testing).  
+user_input/main.py → Handles user interaction (console interface)
 
 ### Machine learning
 
@@ -28,3 +46,6 @@ For forecasting specific future prices (e.g., Friday and Saturday), I trained mu
 One of the main challenges was dealing with **incomplete user input**. Since the prediction model requires at least a few price points to identify the correct pattern, I had to design a way to handle missing values without breaking the model. I solved this by using **imputation techniques** during preprocessing and making the interface flexible enough to accept partial inputs.
 
 Another difficulty was related to the **similarity between different price patterns**, especially early in the week. Several patterns in the game like **fluctuating** and **small_spike** can begin with similar price drops or rises, making it hard for the model to distinguish them based on limited data. To address this, I manually annotated several weeks of historical price data and trained a **Random Forest classifier** to learn subtle differences. The goal was to teach the model how to "see ahead" using early cues, even when the patterns look alike at first.
+
+Finally, I faced a challenge with the decreasing pattern. Since my dataset had very few examples of this case, the models initially struggled to predict it correctly, even with the screening logic I designed to detect downward trends. To overcome this imbalance, I applied oversampling with small synthetic variations of decreasing weeks, which helped improve the model’s accuracy and ensure more reliable predictions.
+
